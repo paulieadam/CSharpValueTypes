@@ -39,6 +39,30 @@ namespace ValueTypes
         }
 
 
+        static void SearchPointInListClass<TPoint>(string description, Func<int, TPoint> pointMaker)
+        {
+            List<TPoint> points = new List<TPoint>();
+
+            for (int i = 0; i < NumberOfPoints; ++i)
+            {
+                points.Add(pointMaker(i));
+            }
+
+            TPoint toFind = pointMaker(NumberOfPoints + 1);
+            int gen0CollectionsAtStart = GC.CollectionCount(0);
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            for (int i = 0; i < Repititions; ++i)
+            {
+                points.Contains(toFind);
+            }
+
+            sw.Stop();
+
+            Console.WriteLine($"{description} \n\tAverage time per lookup: {sw.ElapsedMilliseconds / Repititions} ms \n\tGarbage collections: { GC.CollectionCount(0) - gen0CollectionsAtStart } ");
+        }
+
         public void Main()
         {
             SearchPointInList("Naked struct", i => new PointV1 { X = i, Y = i });
@@ -46,6 +70,12 @@ namespace ValueTypes
             SearchPointInList("With Equals overload", i => new PointV3 { X = i, Y = i });
             SearchPointInList("With IEquatable", i => new PointV4 { X = i, Y = i });
             SearchPointInList("All", i => new PointV5 { X = i, Y = i });
+
+            SearchPointInListClass("Naked class", i => new PointV1Class { X = i, Y = i });
+            SearchPointInListClass("With Equals override", i => new PointV2Class { X = i, Y = i });
+            SearchPointInListClass("With Equals overload", i => new PointV3Class { X = i, Y = i });
+            SearchPointInListClass("With IEquatable", i => new PointV4Class { X = i, Y = i });
+            SearchPointInListClass("All", i => new PointV5Class { X = i, Y = i });
         }
     }
 }
